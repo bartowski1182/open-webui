@@ -44,7 +44,7 @@
 		getTagsById,
 		updateChatById
 	} from '$lib/apis/chats';
-	import { generateOpenAIChatCompletion } from '$lib/apis/openai';
+	import { generateOpenAIChatCompletion, getOpenAIModel } from '$lib/apis/openai';
 	import { runWebSearch } from '$lib/apis/rag';
 	import { createOpenAITextStream } from '$lib/apis/streaming';
 	import { queryMemory } from '$lib/apis/memories';
@@ -137,6 +137,7 @@
 		autoScroll = true;
 
 		title = '';
+		let defaultModel = '';
 		messages = [];
 		history = {
 			messages: {},
@@ -150,6 +151,12 @@
 		} else if ($config?.default_models) {
 			console.log($config?.default_models.split(',') ?? '');
 			selectedModels = $config?.default_models.split(',');
+		} else if (
+			(defaultModel = await getOpenAIModel(localStorage.token).catch(() => {
+				return '';
+			})) != ''
+		) {
+			selectedModels = [defaultModel];
 		} else {
 			selectedModels = [''];
 		}
@@ -438,7 +445,16 @@
 		const _chatId = JSON.parse(JSON.stringify($chatId));
 
 		await Promise.all(
+<<<<<<< HEAD
 			selectedModelIds.map(async (modelId) => {
+=======
+			(modelId
+				? [modelId]
+				: atSelectedModel !== undefined
+					? [atSelectedModel.id]
+					: selectedModels
+			).map(async (modelId) => {
+>>>>>>> 1880e706 (Default model when openai endpoint provides one)
 				console.log('modelId', modelId);
 				const model = $models.filter((m) => m.id === modelId).at(0);
 
@@ -610,7 +626,7 @@
 								? `\n\nUser Context:\n${(responseMessage?.userContext ?? []).join('\n')}`
 								: ''
 						}`
-				  }
+					}
 				: undefined,
 			...messages
 		]
@@ -680,7 +696,7 @@
 					$settings?.params?.stop ?? undefined
 						? $settings.params.stop.map((str) =>
 								decodeURIComponent(JSON.parse('"' + str.replace(/\"/g, '\\"') + '"'))
-						  )
+							)
 						: undefined,
 				num_predict: $settings?.params?.max_tokens ?? undefined,
 				repeat_penalty: $settings?.params?.frequency_penalty ?? undefined
@@ -770,8 +786,13 @@
 											? `${
 													selectedModelfile.title.charAt(0).toUpperCase() +
 													selectedModelfile.title.slice(1)
+<<<<<<< HEAD
 											  }`
 											: `${model.id}`,
+=======
+												}`
+											: `${model}`,
+>>>>>>> 1880e706 (Default model when openai endpoint provides one)
 										{
 											body: responseMessage.content,
 											icon: selectedModelfile?.imageUrl ?? `${WEBUI_BASE_URL}/static/favicon.png`
@@ -891,7 +912,7 @@
 						model.info?.meta?.capabilities?.usage ?? false
 							? {
 									include_usage: true
-							  }
+								}
 							: undefined,
 					messages: [
 						$settings.system || (responseMessage?.userContext ?? null)
@@ -902,7 +923,7 @@
 											? `\n\nUser Context:\n${(responseMessage?.userContext ?? []).join('\n')}`
 											: ''
 									}`
-							  }
+								}
 							: undefined,
 						...messages
 					]
@@ -929,20 +950,20 @@
 													}
 												}))
 										]
-								  }
+									}
 								: {
 										content:
 											arr.length - 1 !== idx
 												? message.content
 												: message?.raContent ?? message.content
-								  })
+									})
 						})),
 					seed: $settings?.params?.seed ?? undefined,
 					stop:
 						$settings?.params?.stop ?? undefined
 							? $settings.params.stop.map((str) =>
 									decodeURIComponent(JSON.parse('"' + str.replace(/\"/g, '\\"') + '"'))
-							  )
+								)
 							: undefined,
 					temperature: $settings?.params?.temperature ?? undefined,
 					top_p: $settings?.params?.top_p ?? undefined,
