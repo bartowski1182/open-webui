@@ -773,17 +773,8 @@
 											? `${
 													selectedModelfile.title.charAt(0).toUpperCase() +
 													selectedModelfile.title.slice(1)
-<<<<<<< HEAD
-<<<<<<< HEAD
 											  }`
 											: `${model.id}`,
-=======
-												}`
-=======
-											  }`
->>>>>>> 6560feb2 (Update model grabbing)
-											: `${model}`,
->>>>>>> 1880e706 (Default model when openai endpoint provides one)
 										{
 											body: responseMessage.content,
 											icon: selectedModelfile?.imageUrl ?? `${WEBUI_BASE_URL}/static/favicon.png`
