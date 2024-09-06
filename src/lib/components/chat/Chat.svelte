@@ -44,7 +44,7 @@
 		getTagsById,
 		updateChatById
 	} from '$lib/apis/chats';
-	import { generateOpenAIChatCompletion } from '$lib/apis/openai';
+	import { generateOpenAIChatCompletion, getOpenAIModel } from '$lib/apis/openai';
 	import { runWebSearch } from '$lib/apis/rag';
 	import { createOpenAITextStream } from '$lib/apis/streaming';
 	import { queryMemory } from '$lib/apis/memories';
@@ -277,6 +277,7 @@
 		autoScroll = true;
 
 		title = '';
+                let defaultModel = '';
 		messages = [];
 		history = {
 			messages: {},
@@ -293,6 +294,8 @@
 		} else if ($config?.default_models) {
 			console.log($config?.default_models.split(',') ?? '');
 			selectedModels = $config?.default_models.split(',');
+                } else if ((defaultModel = await getOpenAIModel(localStorage.token)) != '') {
+			selectedModels = [defaultModel];
 		} else {
 			selectedModels = [''];
 		}
